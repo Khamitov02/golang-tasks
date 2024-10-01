@@ -19,24 +19,21 @@ func (s *Student) doubleGpa() {
 }
 
 func (s Student) getName() string {
-	fmt.Println("Student's name returned")
 	return s.name
 }
 
 func main() {
-	//custom struct
+	//Struct with methods example
 	var student1 = &Student{"Erik", 20, 3.5}
 	fmt.Println("Student's default values: ", student1)
 
 	student1.setAge(5)
 	student1.doubleGpa()
-
 	fmt.Println("Student's values after change: ", student1)
 	fmt.Printf("Student's name is: %s\n", student1.getName())
 
-	//map examples
+	//Map example
 	box := make(map[int]string)
-
 	box[1] = "gifts"
 	box[4] = "rocks"
 	box[77] = "balls"
@@ -54,4 +51,32 @@ func main() {
 	delete(box, 1)
 	fmt.Printf("Map after content deleted: %v\n", box)
 
+	// Array example
+	arr := [5]int{1, 2, 3, 4, 5}
+	fmt.Println("Array content:")
+	for _, val := range arr {
+		fmt.Printf("%d ", val)
+	}
+	fmt.Println()
+
+	// Slice example
+	slice := []int{10, 20, 30, 40, 50, 60}
+	slice = append(slice, 70)
+	fmt.Println("Slice elements:")
+	for i, val := range slice {
+		if i%2 == 0 {
+			fmt.Printf("Value %d a even index %d\n", val, i)
+		} else {
+			fmt.Printf("Value %d at odd index %d\n", val, i)
+		}
+	}
+
+	// Additional loop and condition
+	for i := 0; i < 5; i++ {
+		if i%2 == 0 {
+			fmt.Printf("Index %d is even\n", i)
+		} else {
+			fmt.Printf("Index %d is odd\n", i)
+		}
+	}
 }
