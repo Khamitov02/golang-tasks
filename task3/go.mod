@@ -1,3 +1,3 @@
-module task2
+module task3
 
 go 1.23.1
