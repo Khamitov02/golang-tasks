@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"sandbox/internal/fridge"
-	"sandbox/internal/oops"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -30,15 +29,56 @@ func (s *Storage) LoadProducts(ctx context.Context) ([]fridge.Product, error) {
 	// данные, которые будем получать, будем складировать в Product
 	// потом валидировать и переносить в то, что ожидает бизнес.
 
-	// Product -> fridgle.Product происходит на уровне работы БД.
+	// Product -> fridge.Product происходит на уровне работы БД.
 
 	//
-	// TODO: написать перекладывание Product -> fridgle.Product с валидацией
+	// TODO: написать перекладывание Product -> fridge.Product с валидацией
 	//
 
-	return nil, fmt.Errorf("postgres.LoadProducts() error: %w", oops.ErrNoData)
+	var dbProducts []Product
+	query := "SELECT ID, Name, Count FROM products" // create query string
+
+	// Execute query
+	err := s.db.SelectContext(ctx, &dbProducts, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to select products: %w", err)
+	}
+
+	var products []fridge.Product
+	for _, dbProduct := range dbProducts {
+		if !dbProduct.ID.Valid {
+			return nil, fmt.Errorf("product ID is NULL")
+		}
+		if !dbProduct.Name.Valid {
+			return nil, fmt.Errorf("product Name is NULL")
+		}
+		if !dbProduct.Count.Valid {
+			return nil, fmt.Errorf("product Count is NULL")
+		}
+
+		product := fridge.Product{
+			ID:    dbProduct.ID.String,
+			Name:  dbProduct.Name.String,
+			Count: uint(dbProduct.Count.Int64),
+		}
+		products = append(products, product)
+	}
+
+	return products, nil
 }
 
 func (s *Storage) SaveProduct(ctx context.Context, product fridge.Product) (id string, err error) {
-	return "", nil
+	query := `
+		INSERT INTO products (Name, Count)
+		VALUES ($1, $2)
+		RETURNING ID
+	`
+
+	var newID string
+	err = s.db.QueryRowContext(ctx, query, product.Name, product.Count).Scan(&newID)
+	if err != nil {
+		return "", fmt.Errorf("failed to insert product: %w", err)
+	}
+
+	return newID, nil
 }
